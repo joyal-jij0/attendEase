@@ -1,7 +1,14 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useForm, Controller, useController } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 
 const branches = ["AI&DS", "AI&ML", "CS", "IT"];
 const backendURL = "http://192.168.1.4:8000/upload";
@@ -112,6 +119,8 @@ const BranchToggle = ({ control }) => {
 const FormComponent = () => {
   const { control, handleSubmit } = useForm();
   const image = useSelector((state) => state.image.image);
+  const [loading, setLoading] = useState(false);
+  const [detectedFacesCount, setDetectedFacesCount] = useState(null);
 
   const onSubmit = async (data) => {
     const currentDateTime = new Date();
@@ -128,10 +137,10 @@ const FormComponent = () => {
       formData.append("image", { uri: image, name: filename, type });
     }
 
-    console.log("FormData:", formData); // Log the form data to see if it's correctly constructed
+    setLoading(true);
 
     try {
-      console.log("Sending request to:", backendURL); // Log the backend URL to see if it's correct
+      console.log("Sending request to:", backendURL);
       const response = await fetch(backendURL, {
         method: "POST",
         body: formData,
@@ -140,16 +149,20 @@ const FormComponent = () => {
         },
       });
 
-      console.log("Response:", response); // Log the response object to see if the request was successful
+      console.log("Response:", response);
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Success", responseData.message);
+        console.log("Success:", responseData.message);
+        console.log("Detected Faces Count:", responseData.detected_faces_count);
+        setDetectedFacesCount(responseData.detected_faces_count);
       } else {
         console.log("Error", "Something went wrong");
       }
     } catch (error) {
-      console.error("Error:", error); // Log any errors that occur during the request
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,6 +205,14 @@ const FormComponent = () => {
       >
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
+      {/* Loading indicator and detected faces count */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : detectedFacesCount !== null ? (
+        <Text style={styles.totalPresentText}>
+          Total Present: {detectedFacesCount}
+        </Text>
+      ) : null}
     </View>
   );
 };
@@ -246,6 +267,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginHorizontal: 10,
+  },
+  totalPresentText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 20,
   },
 });
 

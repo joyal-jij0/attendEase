@@ -20,7 +20,6 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
@@ -39,7 +38,7 @@ def upload_file():
             date_time = request.form.get('dateTime')
 
             # Recognize faces
-            detected_names = recognize_faces(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            detected_names, detected_faces_count = recognize_faces(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             # Save data to CSV
             with open('form_data.csv', 'a', newline='') as csvfile:
@@ -47,10 +46,12 @@ def upload_file():
                 for name in detected_names:
                     writer.writerow([semester, lecture_no, branch, date_time, filename, name])
 
-            return jsonify({'message': 'File uploaded successfully'}), 200
+            # Return response with count of detected faces
+            return jsonify({'message': 'File uploaded successfully', 'detected_faces_count': detected_faces_count}), 200
 
         else:
             return jsonify({'error': 'Invalid file format'}), 400
+
 
 
 if __name__ == '__main__':

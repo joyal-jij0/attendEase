@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 import pickle
 import face_recognition
@@ -42,7 +42,7 @@ def recognize_faces(
     image_location: str,
     model: str = "hog",
     encodings_location: Path = DEFAULT_ENCODINGS_PATH
-) -> List[str]:
+) -> Tuple[List[str], int]:
     detected_names = []
 
     with encodings_location.open(mode="rb") as f:
@@ -63,7 +63,7 @@ def recognize_faces(
             name = "Unknown"
         detected_names.append(name)
 
-    return detected_names
+    return detected_names, len(input_face_locations)
 
 
 def _recognize_face(unkown_encoding, loaded_encodings):
