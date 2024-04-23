@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { useState } from "react";
 
 const branches = ["AI&DS", "AI&ML", "CS", "IT"];
-const backendURL = "http://192.168.53.36:8000/upload";
+const backendURL = "your_ip_address/upload";
 
 const DateTimeDisplay = () => {
   const [currentDateTime, setCurrentDateTime] = React.useState(new Date());
